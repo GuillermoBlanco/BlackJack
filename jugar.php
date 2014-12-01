@@ -1,10 +1,10 @@
 <?php
+    include_once './baraja.class.php';
+    include_once './jugador.class.php';
+    include_once './partida.class.php';
+    
     session_start();
-    
-    include './baraja.class.php';
-    include './jugador.class.php';
-    include './partida.class.php';
-    
+        
     $partida= new Partida();
     
    
@@ -19,15 +19,15 @@
         }
         
         for ($x=0; $x<$num_jug; $x++){
-            $partida[$x]= new Jugador();
+            $partida->addJugador();
         }
         
         $baraja= new Baraja();
-        $baraja->barajar;
+        $baraja->barajar();
         
         $partida->setBaraja($baraja);
         
-        repartir($partida, 5);
+        repartir($partida, 3);
         $_SESSION['partida']=$partida;
     }
      else {
@@ -52,46 +52,52 @@
         lanzar($partida, $carta);
     }
     
-    print_r($partida);
+    //var_dump($partida);
 
 //    repartirJugador($partida, 1, 4);
+
     
-    mostrarbaraja($partida);
+    mostrarPartida($partida);
 
     function repartir ($partida,$num_cartas) {
-        if (count($partida->baraja)>0){
+        
+        if (count($partida->jugadores)>0){
             
-            for ($x=0; $x<count($partida->jugadores); $x++){ 
-            $partida->jugadores[$x]->setCartas(array_splice($partida->baraja, 0, $num_cartas));
+            for ($x=0; $x<count($partida->jugadores); $x++){
+            
+            $partida->jugadores[$x]->setCartas(array_splice($partida->getBaraja()->cartas, 0, $num_cartas));
+            
             }
+            
+            var_dump($partida);
         }        
     }
     function repartirJugador ($partida,$num_cartas) {
         
-        if (count($partida['baraja'])>0){
-            $partida->jugadores[$partida->getTurno()]->setCartas(array_splice($partida['baraja'], 0, $num_cartas));
+        if (count($partida->getbaraja())>0){
+            $partida->jugadores[$partida->getTurno()]->setCartas(array_splice($partidagetBaraja()->cartas, 0, $num_cartas));
         }
     }
     
-    function puntos ($mano){
-        $suma=0;
-        foreach ($mano as $carta) {
-            $suma=$suma+($carta->getValor());
-        }
+    function mostrarPartida($partida){
+
+        echo '<h1 style="font-size:3em; margin-bottom:-20px">SuperBlackjack </h1>';
+        echo '<div style="float:left">';
+        echo '<h1 style="color:red">Turno jugador: '.($partida->getTurno()+1).'</h1>';
+        echo '<h2 style="">Ronda: '.($partida->getRonda()+1).'</h1>';
+        echo '</div>';
         
-        return $suma;
+        for ($index = 0; $index < count($partida->jugadores); $index++) {
+
+            echo '<div style="float:right; padding-top:50px">';
+
+            echo '<h2 style="text-align:right">Jugador '.($index+1).' </h2>';
+
+            $partida->pintaCartas($partida->jugadores[$index]->getCartas());
+
+        }
     }
-    
-    function pintaCartas ($mano){
-        $suma=0;
-        foreach ($mano as $carta) {
-            echo '<img src="naipes/'.$carta['palo'].'-'.$carta['numero'].'.gif"'.' WIDTH="40" HEIGHT="64">';
-            $suma=$suma+$carta['valor'];
-            }
-        echo '<p>Puntos : '.$suma.'</p>';
-        echo '</br>';
-    }
-    
+
     function lanzar (&$partida, $carta) {
         $jugador=$partida['turno'];
         if ($carta['numero']==5){

@@ -1,11 +1,11 @@
 <?php
-    include './baraja.class.php';
-    include './jugador.class.php';
+    include_once './baraja.class.php';
+    include_once './jugador.class.php';
     
     class Partida{
         
         private $baraja;
-        public $jugadores=array();
+        public $jugadores= array();
         
         private $ronda;
         private $turno;
@@ -46,5 +46,37 @@
             $this->turno++;
         }
         
+        public function getJugador($jug) {
+            if ($this->jugadores[$jug]){
+                return $this->jugadores[$jug];}
+            else return 0;
+        }
+
+        public function addJugador() {
+            array_push($this->jugadores , new Jugador());
+        }
+        
+        function puntos($mano){
+            $suma=0;
+            foreach ($mano as $carta) {
+                $suma=$suma+($carta->getValor());
+            }
+
+            return $suma;
+        }
+
+    //        $message = "wrong answer";
+    //        echo "<script type='text/javascript'>alert('$message');</script>";
+        
+        public function pintaCartas($mano){
+            
+            foreach ($mano as $carta){
+                        $carta->mostrarCarta();
+                    }
+                echo '</br>';
+                echo '<p>Puntos : '.$this->puntos($mano).'</p>';
+                echo '</br>';
+                
+            }
     }
 ?>
