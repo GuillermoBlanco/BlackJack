@@ -8,6 +8,10 @@
         public function mostrarCarta (){
             echo '<img src="naipes/'.$this->palo.'-'.$this->numero.'.gif"'.' WIDTH="40" HEIGHT="64">';
         }
+        
+        public function esconderCarta(){
+            echo '<img src="naipes/dorso.gif"'.' WIDTH="40" HEIGHT="64">';
+        }
 
         public function __construct($palo, $numero, $valor) {
             $this->palo=$palo;

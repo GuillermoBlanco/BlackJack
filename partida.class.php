@@ -9,7 +9,9 @@
         
         private $ronda;
         private $turno;
-        
+        private $pasa=0;
+        private $planta=0;
+                
         function __construct() {
             
         }
@@ -46,6 +48,22 @@
             $this->turno++;
         }
         
+        public function getParados(){
+            return $this->pasa+$this->planta;
+        }
+        
+        public function incPasa(){
+            $this->pasa++;
+        }
+        
+        public function incPlanta(){
+            $this->planta++;
+        }
+        
+        public function decPasa(){
+            $this->pasa--;
+        }
+        
         public function getJugador($jug) {
             if ($this->jugadores[$jug]){
                 return $this->jugadores[$jug];}
@@ -73,10 +91,24 @@
             foreach ($mano as $carta){
                         $carta->mostrarCarta();
                     }
+            $puntos=$this->puntos($mano);
                 echo '</br>';
-                echo '<p>Puntos : '.$this->puntos($mano).'</p>';
+                if ($puntos>=21){  
+                    echo '<p style="color:red">';
+                }
+                else{  
+                    echo '<p>';
+                }
+                
+                echo 'Puntos : '.$puntos.'</p>';
                 echo '</br>';
                 
+        }
+        
+        public function escondeCartas($mano){
+            foreach ($mano as $carta){
+                $carta->esconderCarta();
             }
+        }
     }
 ?>

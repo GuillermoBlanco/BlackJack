@@ -9,6 +9,60 @@
     
    
     if (!isset($_SESSION['partida'])) {
+        //Valores iniciales por defecto de la partida
+        inicializarPartida($partida);
+        $_SESSION['partida']=$partida;
+    }
+     else {
+        //Rescata partida de la sesion
+        $partida=$_SESSION['partida'];
+    }
+    
+    if (isset($_GET['opcion'])){
+        
+        switch ($_GET['opcion']) {
+            case "Robar":
+                $partida->decPasa();
+                repartirJugador($partida, 1);
+                if ($partida->puntos($partida->jugadores[$partida->getTurno()]->getCartas())>21){
+                   $partida->jugadores[$partida->getTurno()]->planta();
+                    $partida->incPlanta();
+                   avanzar($partida);
+                }
+                break;
+            
+            case "Pasar":
+                
+                if (($partida->getParados())==count($partida->jugadores)-1){
+
+                }
+                $partida->incPasa();
+                avanzar($partida);
+                break;
+                
+            case "Plantar":
+                $partida->jugadores[$partida->getTurno()]->planta();
+                $partida->incPlanta();
+                avanzar($partida);
+                break;
+
+            default:
+                break;
+        }
+
+        $_SESSION['partida']=$partida;
+    }
+
+    //var_dump($partida);
+
+//    repartirJugador($partida, 1, 4);
+
+    
+    mostrarPartida($partida);
+//    var_dump($partida);
+
+    function inicializarPartida($partida){
+        
         $partida->setTurno(0);
         $partida->setRonda(0);
         
@@ -27,37 +81,9 @@
         
         $partida->setBaraja($baraja);
         
-        repartir($partida, 3);
-        $_SESSION['partida']=$partida;
+        repartir($partida, 2);
+        
     }
-     else {
-        $partida=$_SESSION['partida'];
-    }
-    
-    if (isset($_GET['turno'])){
-            $partida['carta']='';
-            if ($partida->getTurno()<(count($partida->jugadores)-1)) $partida->incTurno();
-            else {
-                $partida->setTurno(0);
-                $partida->incRonda();
-            }
-            $_SESSION['partida']=$partida;
-    }
-    if (isset($_GET['num_cartas'])) {
-        repartirJugador($partida, $_GET['num_cartas']);
-    }
-    
-    if (isset($_GET['palo']) && isset($_GET['numero'])){
-        $carta=array('palo'=>$_GET['palo'],'numero'=>$_GET['numero'],'valor'=>$_GET['valor']);
-        lanzar($partida, $carta);
-    }
-    
-    //var_dump($partida);
-
-//    repartirJugador($partida, 1, 4);
-
-    
-    mostrarPartida($partida);
 
     function repartir ($partida,$num_cartas) {
         
@@ -65,18 +91,29 @@
             
             for ($x=0; $x<count($partida->jugadores); $x++){
             
-            $partida->jugadores[$x]->setCartas(array_splice($partida->getBaraja()->cartas, 0, $num_cartas));
+//            $partida->jugadores[$x]->setCartas(array_splice($partida->getBaraja()->cartas, 0, $num_cartas));
+            $partida->jugadores[$x]->addCartas(array_splice($partida->getBaraja()->cartas, 0, $num_cartas));
             
             }
-            
-            var_dump($partida);
-        }        
+        }
+        
     }
+    
     function repartirJugador ($partida,$num_cartas) {
         
         if (count($partida->getbaraja())>0){
-            $partida->jugadores[$partida->getTurno()]->setCartas(array_splice($partidagetBaraja()->cartas, 0, $num_cartas));
+//            $partida->jugadores[$partida->getTurno()]->setCartas(array_splice($partida->getBaraja()->cartas, 0, $num_cartas));
+            $partida->jugadores[$partida->getTurno()]->addCartas(array_splice($partida->getBaraja()->cartas, 0, $num_cartas));
         }
+    }
+    
+    function avanzar($partida){
+            if ($partida->getTurno()<(count($partida->jugadores)-1)) $partida->incTurno();
+            else {
+                $partida->setTurno(0);
+                $partida->incRonda();
+            }
+            if ($partida->jugadores[$partida->getTurno()]->isPlante()) avanzar ($partida);
     }
     
     function mostrarPartida($partida){
@@ -87,100 +124,31 @@
         echo '<h2 style="">Ronda: '.($partida->getRonda()+1).'</h1>';
         echo '</div>';
         
-        for ($index = 0; $index < count($partida->jugadores); $index++) {
+        
+        for ($index = count($partida->jugadores)-1; $index >= 0; $index--) {
 
-            echo '<div style="float:right; padding-top:50px">';
+            echo '<div style="float:right; padding-top:50px; margin:30px;">';
 
             echo '<h2 style="text-align:right">Jugador '.($index+1).' </h2>';
 
             $partida->pintaCartas($partida->jugadores[$index]->getCartas());
+            
+            if ($index==$partida->getTurno() && $partida->getParados()!=count($partida->jugadores) ){
+                echo '<div style="float:bottom; padding-top:3px; margin:3px;">';
+                echo '<FORM METHOD="get" ACTION="jugar.php">
+                    <INPUT TYPE="radio" name="opcion" VALUE="Robar">Robar</br>
+                    <INPUT TYPE="radio" name="opcion" VALUE="Pasar">Pasar</br>
+                    <INPUT TYPE="radio" name="opcion" VALUE="Plantar">Plantarse</br>
+                    <INPUT TYPE="submit" VALUE="OK">
+                    </FORM>';
 
+                echo '</div>';
+            }
+            
+            echo '</div>';
         }
     }
-
-    function lanzar (&$partida, $carta) {
-        $jugador=$partida['turno'];
-        if ($carta['numero']==5){
-            array_push ($partida['tablero'][$carta['palo']], $carta);
-            for ($x=0; $x<count($partida[$jugador]); $x++) {
-                                if (($partida[$jugador][$x]['numero']==$carta['numero'])&&
-                                    ($partida[$jugador][$x]['palo']==$carta['palo'])){
-                                    unset ($partida[$jugador][$x]);
-                                    $partida[$jugador] = array_values($partida[$jugador]);
-                                    break;
-                                    }
-                            }
-//            pasaTurno();
-            $partida['carta']='';
-            if ($partida['turno']<($partida['num_jug']-1)) $partida['turno']++;
-            else {
-                $partida['turno']=0;
-                $partida['ronda']++;
-            }
-            
-        }
-        else {
-            
-            $palo=$carta['palo'];
-
-            if (!empty($partida['tablero'][$palo])){
-                $cartas_mesa1=$partida['tablero'][$palo];
-                $cartas_mesa2=$partida['tablero'][$palo];
-                $primera=array_shift($cartas_mesa1);
-                $ultima=array_pop($cartas_mesa2);
-//                print_r($primera);
-//                print_r($ultima);
-
-                if (($carta['numero'])==$primera['numero']-1) {
-                    //Agrego elemento al final
-                    array_unshift ($partida['tablero'][$palo], $carta);
-                    //Eliminar elemento de mano del jugador ¿????
-                    for ($x=0; $x<count($partida[$jugador]); $x++) {
-                        if (($partida[$jugador][$x]['numero']==$carta['numero'])&&
-                            ($partida[$jugador][$x]['palo']==$carta['palo'])){
-                            unset ($partida[$jugador][$x]);
-                            $partida[$jugador] = array_values($partida[$jugador]);
-                            break;
-                            }
-                        }
-                    
-//                    pasaTurno();
-                    $partida['carta']='';
-                    if ($partida['turno']<($partida['num_jug']-1)) $partida['turno']++;
-                    else {
-                        $partida['turno']=0;
-                        $partida['ronda']++;
-                    }
-                }
-                elseif (($carta['numero'])==$ultima['numero']+1) {
-
-                    //Agrego elemento al principio
-                    array_push ($partida['tablero'][$palo], $carta);
-                    //Eliminar elemento de mano del jugador ¿????
-                    for ($x=0; $x<count($partida[$jugador]); $x++) {
-                        if (($partida[$jugador][$x]['numero']==$carta['numero'])&&
-                            ($partida[$jugador][$x]['palo']==$carta['palo'])) {
-                            unset ($partida[$jugador][$x]);
-                            $partida[$jugador] = array_values($partida[$jugador]);
-                            break;
-                            }
-                    }
-//                    pasaTurno();
-                    $partida['carta']='';
-                    if ($partida['turno']<($partida['num_jug']-1)) 
-                        $partida['turno']++;
-                    else {
-                        $partida['turno']=0;
-                        $partida['ronda']++;
-                    }
-               }
-        
-            }
-        }
-        $_SESSION['partida']=$partida;
-//        print_r($partida['tablero']);
-
-}   
+ 
 //        function pasaTurno() {
 //            $partida['carta']='';
 //            if ($partida['turno']<($partida['num_jug']-1)) $partida['turno']++;
