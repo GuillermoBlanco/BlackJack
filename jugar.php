@@ -233,8 +233,6 @@
         $juegan=false;
         $max_jugadores=NULL;
         
-        echo "El ganador es....";
-        
         for ($i=0; $i<count($partida->jugadores); $i++){
             if (!$partida->jugadores[$i]->isPasa()){
                 if ($max_jugadores==NULL) $max_jugadores=$i;
@@ -251,14 +249,14 @@
         if ($juegan){
             if ($partida->puntos( $partida->jugadores[$max_jugadores]->getCartas() )<=$partida->puntos( $partida->croupier->getCartas() ) 
                 && $partida->puntos( $partida->croupier->getCartas())<=21){
-                echo 'el Croupier!!!!';
+                echo '<p>El ganador es.... el Croupier!!!!</p>';
             }
             else {
-                echo 'el Jugador '.($max_jugadores+1).' !!!!';
+                echo '<p>El ganador es.... el Jugador '.($max_jugadores+1).' !!!!</p>';
             }
         }
         else{
-            echo "Nadie apuesta :( La banca gana";
+            echo "<p>Nadie apuesta :( La banca gana</p>";
         }
         
 //        var_dump($partida);
