@@ -6,13 +6,16 @@
         
         private $baraja;
         public $jugadores= array();
+        public $croupier;
         
+        public $fin=false;
         private $ronda;
         private $turno;
         private $pasa=0;
         private $planta=0;
                 
         function __construct() {
+            $this->croupier=new Jugador();
             
         }
         
@@ -87,7 +90,7 @@
     //        echo "<script type='text/javascript'>alert('$message');</script>";
         
         public function pintaCartas($mano){
-            
+            $fuera=false;
             foreach ($mano as $carta){
                         $carta->mostrarCarta();
                     }
@@ -95,14 +98,16 @@
                 echo '</br>';
                 if ($puntos>=21){  
                     echo '<p style="color:red">';
+                    $fuera=false;
                 }
                 else{  
                     echo '<p>';
+                    $fuera =true;
                 }
                 
                 echo 'Puntos : '.$puntos.'</p>';
                 echo '</br>';
-                
+            return $fuera;
         }
         
         public function escondeCartas($mano){

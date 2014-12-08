@@ -4,6 +4,7 @@
         private $nombre;
         private $cartas=array();
         private $plante=false;
+        private $pasa=false;
         
         function __construct() {
            
@@ -37,7 +38,15 @@
             return $this->plante;
         }
                 
-        
+        public function isPasa() {
+            return $this->pasa;
+        }
+
+        public function pasa() {
+            $this->pasa = true;
+        }
+
+
     }
     
 ?>
