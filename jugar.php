@@ -259,8 +259,13 @@
             echo "<p>Nadie apuesta :( La banca gana</p>";
         }
         
+        $host  = $_SERVER['HTTP_HOST'];
+        $uri   = rtrim(dirname($_SERVER['PHP_SELF']), '/\\');
+        echo '<form action="http://'.$host.$uri.'">
+            <input type="submit" value="Volver a jugar!!!">
+            </form>';
 //        var_dump($partida);
-
+        session_destroy();
     }
     
 ?>
